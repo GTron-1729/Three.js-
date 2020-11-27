@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ganesh Three.js </title>
+</head>
+
+<body>
+    <script src="js/three.js"></script>
+    <script src="js/OrbitControls.js"></script>
+    <script src="js/GLTFLoader.js"></script>
+    <script>
+
+        // 7. here
+        (function () { var script = document.createElement('script'); script.onload = function () { var stats = new Stats(); document.body.appendChild(stats.dom); requestAnimationFrame(function loop() { stats.update(); requestAnimationFrame(loop) }); }; script.src = '//mrdoob.github.io/stats.js/build/stats.min.js'; document.head.appendChild(script); })()
+
+        let scene = new THREE.Scene(); // This is what we see
+        let camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        // 3rd and 4th are params of near cliping and far cliping plane
+
+        let renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // 3. add event listner to auto adjust screen with resizing
+        window.addEventListener('resize', function () {
+            let width = window.innerWidth;
+            let height = window.innerHeight;
+            renderer.setSize(width, height);
+            // renderer is resized
+
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+            // camera projection adjusted
+
+        });
+        // above stuff is easy and self explanatory
+
+        // 2. create a shape
+        let geometry = new THREE.SphereGeometry(1, 10, 10);
+
+        // 5. Adding textures
+        let SphereMaterials = [
+
+            //new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load('images/1.jpg'), side: THREE.DoubleSide }),
+            new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load('images/2.jpg'), side: THREE.DoubleSide }),
+            // new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load('images/3.jpg'), side: THREE.DoubleSide }),
+            // new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load('images/4.jpg'), side: THREE.DoubleSide }),
+            // new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load('images/5.jpg'), side: THREE.DoubleSide }),
+            // these can be 6 for sides of cube; doubleside frontside backside are options so that we can see them inside the obj also
+            // MeshBasicMaterial isnt affected by lighting 
+        ];
+
+        // here we pass array of textures from above
+        let material = new THREE.MeshFaceMaterial(SphereMaterials);
+        let sphere = new THREE.Mesh(geometry, material);// add geometry and material to a finalized sphere
+        //scene.add(sphere); this will add sphere in scene
+
+        // now we cant see it as sphere is rendered at origin
+        // also the camera is at origin
+        camera.position.z = 3; // Now we can see outline, to see wireframe set it to true
+        camera.position.x = 2;
+        camera.position.y = 0.5;
+
+        // 3. Now the problem is if window is resized, content doesnt 
+        // so detect when viewport(browser) is resized and update camera and other things
+        // so add event listners above
+
+        // 4. we will add user controls in website
+        controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+        // 6. lightings
+        let ambientlight = new THREE.AmbientLight(0xFFFFFF, 5.0)
+        scene.add(ambientlight);
+        // First colour of light then intensity
+        // IF YOU CHECK THERE IS NO CHANGE AS MESHBASICMATERIAL is not affected by lighting
+        // so change from basic to [Phong blinn lambert constant] glossiness decreasing level
+        // lambert can be assumed matt finish
+
+        // these are steps to add 3 point lights in scene
+        // var light1 = new THREE.PointLight(0xFF0040, 0.8, 50);
+        // scene.add(light1);
+
+        // var light2 = new THREE.PointLight(0x0040FF, 1, 50);
+        // scene.add(light2);
+
+        // var light3 = new THREE.PointLight(0xFF0800, 2, 50);
+        // scene.add(light3);
+
+        // 7. Importing models (I am working on GLTF)
+        // in documentation search for loader (models on sketchfab)
+        let loader = new THREE.GLTFLoader();
+        loader.load(
+            'models/scene.gltf',
+            function (gltf) {
+                scene.add(gltf.scene);
+            }
+        )
+
+        // 8. Frame Rate goto start of script
+        // 9. Analyphic 3d (wear glasses and enjoy)
+        // 10. Skybox (the world inside which we play)
+        loader.load(
+            'models/skybox_city/scene.gltf',
+            function (gltf) {
+                scene.add(gltf.scene);
+            }
+        )
+
+        // game logic
+        let update = function () {
+            // every frame these are updated
+            //sphere.rotation.x +=0.01;
+            //sphere.rotation.y +=0.01;
+        };
+
+        // draw scene
+        let render = function () {
+            renderer.render(scene, camera);
+        };
+
+        // run game loop (update render repeat)
+        let GameLoop = function () {
+            requestAnimationFrame(GameLoop);
+            update();
+            render();
+        };
+        GameLoop();
+    </script>
+</body>
+
+</html>
